@@ -8,25 +8,25 @@
 - [Platforms and Tools](#-platforms-and-tools)
 - [Summary of Findings (Flags)](#-summary-of-findings-flags)
   - [Flag 1: INITIAL ACCESS - Remote Access Source](#-flag-1-initial-access---remote-access-source)
-  - [Flag 2: INITIAL ACCESS - Compromised User Account]
-  - [Flag 3: DISCOVERY - Network Reconnaissance]
-  - [Flag 4: DEFENCE EVASION - Malware Staging Directory]
-  - [Flag 5: DEFENCE EVASION - File Extension Exclusions]
-  - [Flag 6: DEFENCE EVASION - Temporary Folder Exclusion]
-  - [Flag 7: DEFENCE EVASION - Download Utility Abuse]
-  - [Flag 8: PERSISTENCE - Scheduled Task Name]
-  - [Flag 9: PERSISTENCE - Scheduled Task Target]
-  - [Flag 10: COMMAND & CONTROL - C2 Server Address]
-  - [Flag 11: COMMAND & CONTROL - C2 Communication Port]
-  - [Flag 12: CREDENTIAL ACCESS - Credential Theft Tool]
-  - [Flag 13: CREDENTIAL ACCESS - Memory Extraction Module]
-  - [Flag 14: COLLECTION - Data Staging Archive]
-  - [Flag 15: EXFILTRATION - Exfiltration Channel]
-  - [Flag 16: ANTI-FORENSICS - Log Tampering]
-  - [Flag 17: IMPACT - Persistence Account]
-  - [Flag 18: EXECUTION - Malicious Script]
-  - [Flag 19: LATERAL MOVEMENT - Secondary Target]
-  - [Flag 20: LATERAL MOVEMENT - Remote Access Tool]
+  - [Flag 2: INITIAL ACCESS - Compromised User Account](#-flag-2-initial-access---compromised-user-account)
+  - [Flag 3: DISCOVERY - Network Reconnaissance](#-flag-3-discovery---network-reconnaissance)
+  - [Flag 4: DEFENCE EVASION - Malware Staging Directory](#-flag-4-defence-evasion---malware-staging-directory)
+  - [Flag 5: DEFENCE EVASION - File Extension Exclusions](#-flag-5-defence-evasion---file-extension-exclusions)
+  - [Flag 6: DEFENCE EVASION - Temporary Folder Exclusion](#-flag-6-defence-evasion---temporary-folder-exclusion)
+  - [Flag 7: DEFENCE EVASION - Download Utility Abuse](#-flag-7-defence-evasion---download-utility-abuse)
+  - [Flag 8: PERSISTENCE - Scheduled Task Name](#-flag-8-persistence---scheduled-task-name)
+  - [Flag 9: PERSISTENCE - Scheduled Task Target](#-flag-9-persistence---scheduled-task-target)
+  - [Flag 10: COMMAND & CONTROL - C2 Server Address](#-flag-10-command--control---c2-server-address)
+  - [Flag 11: COMMAND & CONTROL - C2 Communication Port](#-flag-11-command--control---c2-communication-port)
+  - [Flag 12: CREDENTIAL ACCESS - Credential Theft Tool](#-flag-12-credential-access---credential-theft-tool)
+  - [Flag 13: CREDENTIAL ACCESS - Memory Extraction Module](#-flag-13-credential-access---memory-extraction-module)
+  - [Flag 14: COLLECTION - Data Staging Archive](#-flag-14-collection---data-staging-archive)
+  - [Flag 15: EXFILTRATION - Exfiltration Channel](#-flag-15-exfiltration---exfiltration-channel)
+  - [Flag 16: ANTI-FORENSICS - Log Tampering](#-flag-16-anti-forensics---log-tampering)
+  - [Flag 17: IMPACT - Persistence Account](#-flag-17-impact---persistence-account)
+  - [Flag 18: EXECUTION - Malicious Script](#-flag-18-execution---malicious-script)
+  - [Flag 19: LATERAL MOVEMENT - Secondary Target](#-flag-19-lateral-movement---secondary-target)
+  - [Flag 20: LATERAL MOVEMENT - Remote Access Tool](#-flag-20-lateral-movement---remote-access-tool)
 - [MITRE ATT&CK Technique Mapping](#-mitre-attck-technique-mapping)
 - [Conclusion](#-conclusion)
 - [Lessons Learned](#-lessons-learned)
