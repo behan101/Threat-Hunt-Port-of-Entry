@@ -1,30 +1,32 @@
 # Threat Hunt: Port of Entry
 
+<img width="740" height="1110" alt="image" src="https://github.com/user-attachments/assets/f6352076-3a19-4fc9-abdb-a2a3060c1ca7" />
+
 # 📚 Table of Contents
 
 - [Threat Hunt: ""]
 - [Platforms and Tools](#-platforms-and-tools)
 - [Summary of Findings (Flags)](#-summary-of-findings-flags)
-  - [Flag 1: ]
-  - [Flag 2: ]
-  - [Flag 3: ]
-  - [Flag 4: ]
-  - [Flag 5: ]
-  - [Flag 6: ]
-  - [Flag 7: ]
-  - [Flag 8: ]
-  - [Flag 9: ]
-  - [Flag 10: ]
-  - [Flag 11: ]
-  - [Flag 12: ]
-  - [Flag 13: ]
-  - [Flag 14: ]
-  - [Flag 15: ]
-  - [Flag 16: ]
-  - [Flag 17: ]
-  - [Flag 18: ]
-  - [Flag 19: ]
-  - [Flag 20: ]
+  - [Flag 1: ] INITIAL ACCESS - Remote Access Source
+  - [Flag 2: ] INITIAL ACCESS - Compromised User Account
+  - [Flag 3: ] DISCOVERY - Network Reconnaissance
+  - [Flag 4: ] DEFENCE EVASION - Malware Staging Directory
+  - [Flag 5: ] DEFENCE EVASION - File Extension Exclusions
+  - [Flag 6: ] DEFENCE EVASION - Temporary Folder Exclusion
+  - [Flag 7: ] DEFENCE EVASION - Download Utility Abuse
+  - [Flag 8: ] PERSISTENCE - Scheduled Task Name
+  - [Flag 9: ] PERSISTENCE - Scheduled Task Target
+  - [Flag 10: ] COMMAND & CONTROL - C2 Server Address
+  - [Flag 11: ] COMMAND & CONTROL - C2 Communication Port
+  - [Flag 12: ] CREDENTIAL ACCESS - Credential Theft Tool
+  - [Flag 13: ] CREDENTIAL ACCESS - Memory Extraction Module
+  - [Flag 14: ] COLLECTION - Data Staging Archive
+  - [Flag 15: ] EXFILTRATION - Exfiltration Channel
+  - [Flag 16: ] ANTI-FORENSICS - Log Tampering
+  - [Flag 17: ] IMPACT - Persistence Account
+  - [Flag 18: ] EXECUTION - Malicious Script
+  - [Flag 19: ] LATERAL MOVEMENT - Secondary Target
+  - [Flag 20: ] LATERAL MOVEMENT - Remote Access Tool
 - [MITRE ATT&CK Technique Mapping](#-mitre-attck-technique-mapping)
 - [Conclusion](#-conclusion)
 - [Lessons Learned](#-lessons-learned)
@@ -35,7 +37,23 @@
 # 🕵️‍♂️ Threat Hunt: *"Port of Entry"*
 
 ## Scenario
+INCIDENT BRIEF - Azuki Import/Export - 梓貿易株式会社
 
+Competitor undercut our 6-year shipping contract by exactly 3%. Our supplier contracts and pricing data appeared on underground forums.
+
+### Company:
+Azuki Import/Export Trading Co. - 23 employees, shipping logistics Japan/SE Asia
+
+### Compromised Systems:
+AZUKI-SL (IT admin workstation)
+
+### Available Evidence:
+Microsoft Defender for Endpoint logs
+```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+```
 
 This report includes:
 
@@ -49,8 +67,13 @@ This report includes:
 ## 🧰 Platforms and Tools
 
 **Analysis Environment:**
+- Microsoft Defender for Endpoint
+- Log Analytics Workspace
+- Azure
 
 **Techniques Used:**
+- Kusto Query Language (KQL)
+- Behavioral analysis of endpoint logs (DeviceProcessEvents, DeviceNetworkEvents, DeviceRegistryEvents)
 
 ---
 
