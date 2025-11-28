@@ -79,9 +79,9 @@ This report includes:
 
 ## 📔 Summary of Findings (Flags)
 
-| Flag | Objective Description | Finding | TimeStamp |
-|------|------------------------|---------|-----------|
-| 1 |                           |         |           |
+| Flag | Objective | Finding | TimeStamp |
+|------|------------------------------------|---------|-----------|
+| 1 | INITIAL ACCESS - Remote Access Source | `88.97.178.12` was the IP address accessing the compromised account | `2025-11-19T00:57:18.3409813Z` |
 | 2 |                           |         |           |
 | 3 |                           |         |           |
 | 4 |                           |         |           |
@@ -106,25 +106,47 @@ This report includes:
 ### 🚩 Flag 1: INITIAL ACCESS - Remote Access Source
 
 **Objective:**
+Remote Desktop Protocol connections leave network traces that identify the source of unauthorised access. Determining the origin helps with threat actor attribution and blocking ongoing attacks. Question: Identify the source IP address of the Remote Desktop Protocol connection?
+
 **Flag Value:**
+88.97.178.12
+2025-11-19T00:57:18.3409813Z
+
 **Detection Strategy:**
+Query logon events for interactive sessions from external sources during the incident timeframe. Use DeviceLogonEvents table and filter by ActionType or LogonType values indicating remote access.
+
 **KQLQuery:**
 ```kql
+DeviceLogonEvents
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where LogonType == "RemoteInteractive"
+| project Timestamp, AccountName, RemoteIP, AdditionalFields
+| sort by AccountName
 ```
 **Evidence:**
+<img width="949" height="307" alt="image" src="https://github.com/user-attachments/assets/7d342911-eb06-401a-917f-bf12cc205cf7" />
+
 **Why This Matters:**
+Finding the RemoteIP that was accessed by the compromised account `kenji.sato` is essential to discovering the scope of the compromise accounts and activities.
 
 ---
 
 ### 🚩 Flag 2: INITIAL ACCESS - Compromised User Account
 
 **Objective:**
+
 **Flag Value:**
+
+
 **Detection Strategy:**
+
+
 **KQLQuery:**
 ```kql
+
 ```
 **Evidence:**
+
 **Why This Matters:**
 
 ---
