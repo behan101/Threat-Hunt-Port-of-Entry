@@ -81,8 +81,8 @@ This report includes:
 
 | Flag | Objective | Finding | TimeStamp |
 |------|------------------------------------|---------|-----------|
-| 1 | INITIAL ACCESS - Remote Access Source | `88.97.178.12` was the IP address accessing the compromised account | `2025-11-19T00:57:18.3409813Z` |
-| 2 |                           |         |           |
+| 1 | Identify the source IP address of the Remote Desktop Protocol connection | `88.97.178.12` was the IP address accessing the compromised account | `2025-11-19T00:57:18.3409813Z` |
+| 2 | Identify the user account that was compromised for initial access | The account `kenji.sato` has been compromised | `2025-11-19T00:57:18.3409813Z` |
 | 3 |                           |         |           |
 | 4 |                           |         |           |
 | 5 |                           |         |           |
@@ -106,11 +106,11 @@ This report includes:
 ### 🚩 Flag 1: INITIAL ACCESS - Remote Access Source
 
 **Objective:**
-Remote Desktop Protocol connections leave network traces that identify the source of unauthorised access. Determining the origin helps with threat actor attribution and blocking ongoing attacks. Question: Identify the source IP address of the Remote Desktop Protocol connection?
+Remote Desktop Protocol connections leave network traces that identify the source of unauthorised access. Determining the origin helps with threat actor attribution and blocking ongoing attacks. Identify the source IP address of the Remote Desktop Protocol connection.
 
 **Flag Value:**
-88.97.178.12
-2025-11-19T00:57:18.3409813Z
+`88.97.178.12`
+`2025-11-19T00:57:18.3409813Z`
 
 **Detection Strategy:**
 Query logon events for interactive sessions from external sources during the incident timeframe. Use DeviceLogonEvents table and filter by ActionType or LogonType values indicating remote access.
@@ -134,20 +134,28 @@ Finding the RemoteIP that was accessed by the compromised account `kenji.sato` i
 ### 🚩 Flag 2: INITIAL ACCESS - Compromised User Account
 
 **Objective:**
+Identifying which credentials were compromised determines the scope of unauthorised access and guides remediation efforts including password resets and privilege reviews. Identify the user account that was compromised for initial access.
 
 **Flag Value:**
-
+`kenji.sato`
+`2025-11-19T00:57:18.3409813Z`
 
 **Detection Strategy:**
-
+In the investigation, the RemoteIP was shown to have accessed the compromised account through the Remote Desktop Protocol.
 
 **KQLQuery:**
 ```kql
-
+DeviceLogonEvents
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where LogonType == "RemoteInteractive"
+| project Timestamp, AccountName, RemoteIP, AdditionalFields
+| sort by AccountName
 ```
 **Evidence:**
+<img width="949" height="307" alt="image" src="https://github.com/user-attachments/assets/7d342911-eb06-401a-917f-bf12cc205cf7" />
 
 **Why This Matters:**
+Identifying the compromised account along with the RemoteIP can pinpoint any attempts at discovery and other intents of the threat actor.
 
 ---
 
