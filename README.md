@@ -83,7 +83,7 @@ This report includes:
 |------|------------------------------------|---------|-----------|
 | 1 | Identify the source IP address of the Remote Desktop Protocol connection | `88.97.178.12` was the IP address accessing the compromised account | `2025-11-19T00:57:18.3409813Z` |
 | 2 | Identify the user account that was compromised for initial access | The account `kenji.sato` has been compromised | `2025-11-19T00:57:18.3409813Z` |
-| 3 |                           |         |           |
+| 3 | Identify the command and argument used to enumerate network neighbours | `ARP.EXE -a` was executed for enumeration | `2025-11-19T19:04:01.773778Z` |
 | 4 |                           |         |           |
 | 5 |                           |         |           |
 | 6 |                           |         |           |
@@ -162,13 +162,32 @@ Identifying the compromised account along with the RemoteIP can pinpoint any att
 ### 🚩 Flag 3: DISCOVERY - Network Reconnaissance
 
 **Objective:**
+Attackers enumerate network topology to identify lateral movement opportunities and high-value targets. This reconnaissance activity is a key indicator of advanced persistent threats. Identify the command and argument used to enumerate network neighbours.
+
 **Flag Value:**
+`ARP.EXE -a`
+`2025-11-19T19:04:01.773778Z`
+
 **Detection Strategy:**
+Look for commands that reveal local network devices and their hardware addresses. Check DeviceProcessEvents for network enumeration utilities executed after initial access.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine has_any ("whoami", "hostname", "systeminfo", "ipconfig", "ipconfig /all", "net user", "net localgroup", "query user", "quser", "qwinsta", "wmic", "Get-ComputerInfo", "Get-CimInstance",
+ "Get-WmiObject", "Get-NetIPConfiguration", "Get-NetAdapter", "Get-NetIPAddress", "Get-Process", "tasklist", "netstat -ano", "reg query", "Get-Service", "Get-LocalUser", "Get-ChildItem Env:")
+ or FileName in~ ("netsh.exe", "ipconfig.exe", "systeminfo.exe", "whoami.exe", "dsquery.exe", "dsget.exe", "nltest.exe", "nbtstat.exe", "arp.exe", "tracert.exe", "quser.exe", "qwinsta.exe")
+| project Timestamp, DeviceName, FileName, ProcessCommandLine, InitiatingProcessFileName, AccountName
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1354" height="514" alt="image" src="https://github.com/user-attachments/assets/360b2f2b-d1dc-4e3a-b86c-82d7d03907e5" />
+
 **Why This Matters:**
+Network topology and enumeration techniques from threat actors are used to identify lateral movement opportunities. Execution of any of these shows intent for reconnaissance and discovery.
 
 ---
 
