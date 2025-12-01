@@ -445,6 +445,8 @@ Credential dumping tools extract authentication secrets from system memory. Thes
 `2025-11-19T19:07:22.8551193Z`
 
 **Detection Strategy:**
+Look for executables downloaded to the staging directory with very short filenames. Search for files created shortly before LSASS memory access events.
+
 
 **KQLQuery:**
 ```kql
