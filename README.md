@@ -88,8 +88,8 @@ This report includes:
 | 5 | Find any file extension exclusions that were implemented to evade scans | `3` file extensions were excluded | `2025-11-19T18:49:27.7301011Z` |
 | 6 | Locate any folder paths that were excluded from Windows Defender | `C:\Users\KENJI~1.SAT\AppData\Local\Temp` was excluded from Windows Defender scans | `2025-11-19T18:49:27.6830204Z` |
 | 7 | Search for any Windows native binaries that the attacker utilized to download files | `certutil.exe` was used to download malware | `2025-11-19T19:06:58.5778439Z` |
-| 8 |                           |         |           |
-| 9 |                           |         |           |
+| 8 | Discover any potential persistance through scheduled tasks | `Windows Update Check` was found to be a disguised scheduled task | `2025-11-19T19:07:46.9796512Z` |
+| 9 | Identify the executable path configured in the scheduled task | Folder path designated for the executable: `C:\ProgramData\WindowsCache\svchost.exe`| `2025-11-19T19:07:46.9796512Z` |
 | 10 |                          |         |           |
 | 11 |                          |         |           |
 | 12 |                          |         |           |
@@ -315,26 +315,62 @@ Living off the Land Binaries is a classic method of defense evasion by weaponizi
 ---
 
 ### 🚩 Flag 8: PERSISTENCE - Scheduled Task Name
+
 **Objective:**
+Scheduled tasks provide reliable persistence across system reboots. The task name often attempts to blend with legitimate Windows maintenance routines. Identify the name of the scheduled task created for persistence.
+
 **Flag Value:**
+`Windows Update Check`
+`2025-11-19T19:07:46.9796512Z`
+
 **Detection Strategy:**
+Search for scheduled task creation commands executed during the attack timeline. Look for schtasks.exe with the /create parameter in DeviceProcessEvents.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine has_any ("create", "task")
+| project Timestamp, DeviceName, InitiatingProcessAccountName, ProcessCommandLine, InitiatingProcessFolderPath, AdditionalFields, InitiatingProcessCommandLine
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1641" height="405" alt="image" src="https://github.com/user-attachments/assets/4853aa44-ca00-4b9f-8cbc-b1574dfc3d2e" />
+
 **Why This Matters:**
+Scheduled tasks can be utilized by attackers to provide reliable persistance. Task names can be disguised as legitimate maintenance routines.
 
 ---
 
 ### 🚩 Flag 9: PERSISTENCE - Scheduled Task Target
+
 **Objective:**
+The scheduled task action defines what executes at runtime. This reveals the exact persistence mechanism and the malware location. Identify the executable path configured in the scheduled task.
+
 **Flag Value:**
+`C:\ProgramData\WindowsCache\svchost.exe`
+`2025-11-19T19:07:46.9796512Z`
+
 **Detection Strategy:**
+Extract the task action from the scheduled task creation command line. Look for the /tr parameter value in the schtasks command.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine has_any ("create", "task")
+| project Timestamp, DeviceName, InitiatingProcessAccountName, ProcessCommandLine, InitiatingProcessFolderPath, AdditionalFields, InitiatingProcessCommandLine
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1641" height="405" alt="image" src="https://github.com/user-attachments/assets/4853aa44-ca00-4b9f-8cbc-b1574dfc3d2e" />
+
 **Why This Matters:**
+The location of the malware and persistence mechanism is crucial to find the source or parent process of the malware / payload.
 
 ---
 
