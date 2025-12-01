@@ -90,7 +90,7 @@ This report includes:
 | 7 | Search for any Windows native binaries that the attacker utilized to download files | `certutil.exe` was used to download malware | `2025-11-19T19:06:58.5778439Z` |
 | 8 | Discover any potential persistance through scheduled tasks | `Windows Update Check` was found to be a disguised scheduled task | `2025-11-19T19:07:46.9796512Z` |
 | 9 | Identify the executable path configured in the scheduled task | Folder path designated for the executable: `C:\ProgramData\WindowsCache\svchost.exe`| `2025-11-19T19:07:46.9796512Z` |
-| 10 |                          |         |           |
+| 10 | Identify the IP address of the command and control server | `78.141.196.6` was found to be the C2 server | `2025-11-19T18:37:26.3725923Z` |
 | 11 |                          |         |           |
 | 12 |                          |         |           |
 | 13 |                          |         |           |
@@ -375,14 +375,33 @@ The location of the malware and persistence mechanism is crucial to find the sou
 ---
 
 ### 🚩 Flag 10: COMMAND & CONTROL - C2 Server Address
+
 **Objective:**
+Command and control infrastructure allows attackers to remotely control compromised systems. Identifying C2 servers enables network blocking and infrastructure tracking. Identify the IP address of the command and control server.
+
 **Flag Value:**
+`78.141.196.6`
+`2025-11-19T18:37:26.3725923Z`
+
 **Detection Strategy:**
+Analyze network connections initiated by the suspicious executable shortly after it was downloaded. Use DeviceNetworkEvents to find outbound connections from the malicious process to external IP addresses.
+
 **KQLQuery:**
 ```kql
+DeviceNetworkEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where RemoteIPType == "Public"
+| where InitiatingProcessFileName !in~ ("chrome.exe", "msedge.exe", "firefox.exe", "teams.exe", "outlook.exe")
+| project Timestamp, LocalIP, RemoteIP, RemotePort, Protocol, ActionType, InitiatingProcessAccountName, InitiatingProcessCommandLine, InitiatingProcessRemoteSessionDeviceName
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1972" height="472" alt="image" src="https://github.com/user-attachments/assets/1cb6f0e0-e0cb-4309-91b1-72da495ca326" />
+
 **Why This Matters:**
+Identifying the command and control (C2) server is a crucial step to try to remediate any futher malicious actions.
 
 ---
 
