@@ -84,8 +84,8 @@ This report includes:
 | 1 | Identify the source IP address of the Remote Desktop Protocol connection | `88.97.178.12` was the IP address accessing the compromised account | `2025-11-19T00:57:18.3409813Z` |
 | 2 | Identify the user account that was compromised for initial access | The account `kenji.sato` has been compromised | `2025-11-19T00:57:18.3409813Z` |
 | 3 | Identify the command and argument used to enumerate network neighbours | `ARP.EXE -a` was executed for enumeration | `2025-11-19T19:04:01.773778Z` |
-| 4 |                           |         |           |
-| 5 |                           |         |           |
+| 4 | Identify directories or staging locations for payloads and data | `C:\ProgramData\WindowsCache` was found to be the primary staging directory | `2025-11-19T19:05:33.7665036Z` |
+| 5 | Find any file extension exclusions that were implemented to evade scans | `3` file extensions were excluded | `2025-11-19T18:49:27.7301011Z` |
 | 6 |                           |         |           |
 | 7 |                           |         |           |
 | 8 |                           |         |           |
@@ -106,7 +106,7 @@ This report includes:
 ### 🚩 Flag 1: INITIAL ACCESS - Remote Access Source
 
 **Objective:**
-Remote Desktop Protocol connections leave network traces that identify the source of unauthorised access. Determining the origin helps with threat actor attribution and blocking ongoing attacks. Identify the source IP address of the Remote Desktop Protocol connection.
+Remote Desktop Protocol connections leave network traces that identify the source of unauthorized access. Determining the origin helps with threat actor attribution and blocking ongoing attacks. Identify the source IP address of the Remote Desktop Protocol connection.
 
 **Flag Value:**
 `88.97.178.12`
@@ -134,7 +134,7 @@ Finding the RemoteIP that was accessed by the compromised account `kenji.sato` i
 ### 🚩 Flag 2: INITIAL ACCESS - Compromised User Account
 
 **Objective:**
-Identifying which credentials were compromised determines the scope of unauthorised access and guides remediation efforts including password resets and privilege reviews. Identify the user account that was compromised for initial access.
+Identifying which credentials were compromised determines the scope of unauthorized access and guides remediation efforts including password resets and privilege reviews. Identify the user account that was compromised for initial access.
 
 **Flag Value:**
 `kenji.sato`
@@ -194,25 +194,63 @@ Network topology and enumeration techniques from threat actors are used to ident
 ### 🚩 Flag 4: DEFENCE EVASION - Malware Staging Directory
 
 **Objective:**
+Attackers establish staging locations to organise tools and stolen data. Identifying these directories reveals the scope of compromise and helps locate additional malicious artefacts. Find the primary staging directory where malware was stored.
+
 **Flag Value:**
+`C:\ProgramData\WindowsCache`
+`2025-11-19T19:05:33.7665036Z`
+
 **Detection Strategy:**
+Search for newly created directories in system folders that were subsequently hidden from normal view. Look for mkdir or New-Item commands followed by attrib commands that modify folder attributes.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine has_any ("mkdir", "New-Item", "attrib")
+| project Timestamp, DeviceName, InitiatingProcessAccountName, FolderCreated=ProcessCommandLine, InitiatingProcessFolderPath
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1374" height="303" alt="image" src="https://github.com/user-attachments/assets/42a9ac42-cb78-4ad0-888b-24d08298b418" />
+
 **Why This Matters:**
+The staging process is generally initiated by establishing locations to store tools and data. Creation of directories that are hidden from normal view are especially indicative of intent to deploy a payload.
 
 ---
 
 ### 🚩 Flag 5: DEFENCE EVASION - File Extension Exclusions
+
 **Objective:**
+Attackers add file extension exclusions to Windows Defender to prevent scanning of malicious files. Counting these exclusions reveals the scope of the attacker's 
+defense evasion strategy. Find how many file extensions were excluded from Windows Defender scanning.
+
+
 **Flag Value:**
+`3`
+`2025-11-19T18:49:27.7301011Z`
+
 **Detection Strategy:**
+Search DeviceRegistryEvents for registry modifications to Windows Defender's exclusion settings. Look for the RegistryValueName field containing file extensions. Count the unique file extensions added to the "Exclusions\Extensions" registry key during the 
+attack timeline.
+
 **KQLQuery:**
 ```kql
+DeviceRegistryEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ActionType == "RegistryValueSet"
+| where RegistryKey startswith "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Extensions"
+| project Timestamp, DeviceName, RegistryKey, RegistryValueData, RegistryValueName
 ```
+
 **Evidence:**
+<img width="1135" height="403" alt="image" src="https://github.com/user-attachments/assets/b0a82c66-c041-41ad-9f49-f15c16c533f1" />
+
 **Why This Matters:**
+File extension exclusions added to Windows Defender is a clear attempt at evading scans to circumvent defensive posture.
 
 ---
 
