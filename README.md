@@ -91,8 +91,8 @@ This report includes:
 | 8 | Discover any potential persistance through scheduled tasks | `Windows Update Check` was found to be a disguised scheduled task | `2025-11-19T19:07:46.9796512Z` |
 | 9 | Identify the executable path configured in the scheduled task | Folder path designated for the executable: `C:\ProgramData\WindowsCache\svchost.exe`| `2025-11-19T19:07:46.9796512Z` |
 | 10 | Identify the IP address of the command and control server | `78.141.196.6` was found to be the C2 server | `2025-11-19T18:37:26.3725923Z` |
-| 11 |                          |         |           |
-| 12 |                          |         |           |
+| 11 | Identify the destination port used for command and control communications | Port `443` was the destination port used | `2025-11-19T19:11:04.1766386Z` |
+| 12 | Identify the filename of the credential dumping tool | `mm.exe` was identified as the credential dumping tool | `2025-11-19T19:07:22.8551193Z` |
 | 13 |                          |         |           |
 | 14 |                          |         |           |
 | 15 |                          |         |           |
@@ -406,26 +406,60 @@ Identifying the command and control (C2) server is a crucial step to try to reme
 ---
 
 ### 🚩 Flag 11: COMMAND & CONTROL - C2 Communication Port
+
 **Objective:**
+C2 communication ports can indicate the framework or protocol used. This information supports network detection rules and threat intelligence correlation. Identify the destination port used for command and control communications.
+
 **Flag Value:**
+`443`
+`2025-11-19T19:11:04.1766386Z`
+
 **Detection Strategy:**
+Examine the destination port for outbound connections from the malicious executable. Check DeviceNetworkEvents for the RemotePort field associated with C2 traffic.
+
 **KQLQuery:**
 ```kql
+DeviceNetworkEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where RemoteIP == "78.141.196.6"
+| project Timestamp, LocalIP, RemoteIP, RemotePort, Protocol, ActionType, InitiatingProcessAccountName, InitiatingProcessCommandLine, InitiatingProcessRemoteSessionDeviceName
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1936" height="531" alt="image" src="https://github.com/user-attachments/assets/2b1cbc48-1586-4ef7-b82e-74c5e2775e41" />
+
 **Why This Matters:**
+Finding the ports that the C2 server used can help identify the framework or protocol used to command the compromised device.
 
 ---
 
 ### 🚩 Flag 12: CREDENTIAL ACCESS - Credential Theft Tool
+
 **Objective:**
+Credential dumping tools extract authentication secrets from system memory. These tools are typically renamed to avoid signature-based detection. Identify the filename of the credential dumping tool.
+
 **Flag Value:**
+`mm.exe`
+`2025-11-19T19:07:22.8551193Z`
+
 **Detection Strategy:**
+
 **KQLQuery:**
 ```kql
+DeviceFileEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where FileName endswith ".exe"
+| project Timestamp, DeviceName, FileName, ActionType, InitiatingProcessFileName, FolderPath
+| order by Timestamp desc
 ```
 **Evidence:**
+<img width="1403" height="426" alt="image" src="https://github.com/user-attachments/assets/a2dae111-e327-4d82-a377-dce01d89d29f" />
+
 **Why This Matters:**
+Finding the credential dumping tool can lead to the credential theft or attempts at extracting the stolen data from system memory.
 
 ---
 
