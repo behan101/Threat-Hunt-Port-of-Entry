@@ -10,10 +10,10 @@
   - [Flag 1: INITIAL ACCESS - Remote Access Source](#-flag-1-initial-access---remote-access-source)
   - [Flag 2: INITIAL ACCESS - Compromised User Account](#-flag-2-initial-access---compromised-user-account)
   - [Flag 3: DISCOVERY - Network Reconnaissance](#-flag-3-discovery---network-reconnaissance)
-  - [Flag 4: DEFENCE EVASION - Malware Staging Directory](#-flag-4-defence-evasion---malware-staging-directory)
-  - [Flag 5: DEFENCE EVASION - File Extension Exclusions](#-flag-5-defence-evasion---file-extension-exclusions)
-  - [Flag 6: DEFENCE EVASION - Temporary Folder Exclusion](#-flag-6-defence-evasion---temporary-folder-exclusion)
-  - [Flag 7: DEFENCE EVASION - Download Utility Abuse](#-flag-7-defence-evasion---download-utility-abuse)
+  - [Flag 4: defense EVASION - Malware Staging Directory](#-flag-4-defense-evasion---malware-staging-directory)
+  - [Flag 5: defense EVASION - File Extension Exclusions](#-flag-5-defense-evasion---file-extension-exclusions)
+  - [Flag 6: defense EVASION - Temporary Folder Exclusion](#-flag-6-defense-evasion---temporary-folder-exclusion)
+  - [Flag 7: defense EVASION - Download Utility Abuse](#-flag-7-defense-evasion---download-utility-abuse)
   - [Flag 8: PERSISTENCE - Scheduled Task Name](#-flag-8-persistence---scheduled-task-name)
   - [Flag 9: PERSISTENCE - Scheduled Task Target](#-flag-9-persistence---scheduled-task-target)
   - [Flag 10: COMMAND & CONTROL - C2 Server Address](#-flag-10-command--control---c2-server-address)
@@ -86,8 +86,8 @@ This report includes:
 | 3 | Identify the command and argument used to enumerate network neighbours | `ARP.EXE -a` was executed for enumeration | `2025-11-19T19:04:01.773778Z` |
 | 4 | Identify directories or staging locations for payloads and data | `C:\ProgramData\WindowsCache` was found to be the primary staging directory | `2025-11-19T19:05:33.7665036Z` |
 | 5 | Find any file extension exclusions that were implemented to evade scans | `3` file extensions were excluded | `2025-11-19T18:49:27.7301011Z` |
-| 6 |                           |         |           |
-| 7 |                           |         |           |
+| 6 | Locate any folder paths that were excluded from Windows Defender | `C:\Users\KENJI~1.SAT\AppData\Local\Temp` was excluded from Windows Defender scans | `2025-11-19T18:49:27.6830204Z` |
+| 7 | Search for any Windows native binaries that the attacker utilized to download files | `certutil.exe` was used to download malware | `2025-11-19T19:06:58.5778439Z` |
 | 8 |                           |         |           |
 | 9 |                           |         |           |
 | 10 |                          |         |           |
@@ -191,7 +191,7 @@ Network topology and enumeration techniques from threat actors are used to ident
 
 ---
 
-### 🚩 Flag 4: DEFENCE EVASION - Malware Staging Directory
+### 🚩 Flag 4: defense EVASION - Malware Staging Directory
 
 **Objective:**
 Attackers establish staging locations to organise tools and stolen data. Identifying these directories reveals the scope of compromise and helps locate additional malicious artefacts. Find the primary staging directory where malware was stored.
@@ -221,7 +221,7 @@ The staging process is generally initiated by establishing locations to store to
 
 ---
 
-### 🚩 Flag 5: DEFENCE EVASION - File Extension Exclusions
+### 🚩 Flag 5: defense EVASION - File Extension Exclusions
 
 **Objective:**
 Attackers add file extension exclusions to Windows Defender to prevent scanning of malicious files. Counting these exclusions reveals the scope of the attacker's 
@@ -254,27 +254,63 @@ File extension exclusions added to Windows Defender is a clear attempt at evadin
 
 ---
 
-### 🚩 Flag 6: DEFENCE EVASION - Temporary Folder Exclusion
+### 🚩 Flag 6: defense EVASION - Temporary Folder Exclusion
+
 **Objective:**
+Attackers add folder path exclusions to Windows Defender to prevent scanning of directories used for downloading and executing malicious tools. These exclusions allow malware to run undetected. What temporary folder path was excluded from Windows Defender 
+scanning?
+
 **Flag Value:**
+`C:\Users\KENJI~1.SAT\AppData\Local\Temp`
+`2025-11-19T18:49:27.6830204Z`
+
 **Detection Strategy:**
+Search DeviceRegistryEvents for folder path exclusions added to Windows Defender configuration. Focus on the RegistryValueName field. Look for temporary folder paths added to the exclusions list during the attack timeline. Copy the path exactly as it appears in the RegistryValueName field.
+
 **KQLQuery:**
 ```kql
+DeviceRegistryEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ActionType == "RegistryValueSet"
+| where RegistryKey startswith "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Defender\\Exclusions\\Paths"
+| project Timestamp, DeviceName, RegistryKey, RegistryValueData, RegistryValueName, InitiatingProcessFolderPath, InitiatingProcessFileName
 ```
+
 **Evidence:**
+<img width="1697" height="380" alt="image" src="https://github.com/user-attachments/assets/234acef5-8fb3-4e73-9eff-f28cd2e6eb09" />
+
 **Why This Matters:**
+Adding folder path exclusions to Windows Defender can prevent scanning of malicious tool executions and downloads. Hiding these folder paths from scans can allow malware to run without detection.
 
 ---
 
-### 🚩 Flag 7: DEFENCE EVASION - Download Utility Abuse
+### 🚩 Flag 7: defense EVASION - Download Utility Abuse
+
 **Objective:**
+Legitimate system utilities are often weaponized to download malware while evading detection. Identifying these techniques helps improve defensive controls. Identify the Windows-native binary the attacker abused to download files.
+
 **Flag Value:**
+`certutil.exe`
+`2025-11-19T19:06:58.5778439Z`
+
 **Detection Strategy:**
+Look for built-in Windows tools with network download capabilities being used during the attack. Search DeviceProcessEvents for processes with command lines containing URLs and output file paths.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine has_any ("http://", "https://")
+| project Timestamp, DeviceName, InitiatingProcessAccountName, ProcessCommandLine, InitiatingProcessFolderPath, AdditionalFields, InitiatingProcessCommandLine
+| order by Timestamp asc
 ```
 **Evidence:**
+<img width="1968" height="430" alt="image" src="https://github.com/user-attachments/assets/79c7ccde-3b06-4dab-bfb5-fa514f43c4cf" />
+
 **Why This Matters:**
+Living off the Land Binaries is a classic method of defense evasion by weaponizing legitimate system utilities. By identifying these techniques, the evidence of abuse will highlight the downloaded files.
 
 ---
 
