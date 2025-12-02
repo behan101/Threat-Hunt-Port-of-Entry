@@ -554,62 +554,154 @@ Cloud services with upload capabilities are frequently abused for data theft. Id
 ---
 
 ### 🚩 Flag 16: ANTI-FORENSICS - Log Tampering
+
 **Objective:**
+Identify the first Windows event log cleared by the attacker.
+
 **Flag Value:**
+`Security`
+`2025-11-19T19:11:39.0934399Z`
+
 **Detection Strategy:**
+Search for event log clearing commands near the end of the attack timeline. Look for wevtutil.exe executions and identify which log was cleared first.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where FileName =~ "wevtutil.exe"
+| project Timestamp, DeviceName, InitiatingProcessAccountName, FileName, ProcessCommandLine, InitiatingProcessFolderPath, AdditionalFields, InitiatingProcessCommandLine
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1924" height="423" alt="image" src="https://github.com/user-attachments/assets/0189873c-67e8-4ab5-bb25-efe095b50529" />
+
 **Why This Matters:**
+Clearing event logs destroys forensic evidence and impedes investigation efforts. The order of log clearing can indicate attacker priorities and sophistication.
 
 ---
 
 ### 🚩 Flag 17: IMPACT - Persistence Account
+
 **Objective:**
+Identify the backdoor account username created by the attacker.
+
 **Flag Value:**
+`support`
+`2025-11-19T19:09:53.0528848Z`
+
+
 **Detection Strategy:**
+Search for account creation commands executed during the impact phase. Look for commands with the /add parameter followed by administrator group additions.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine has_any ("net user", "/add", "useradd", "username")
+| project Timestamp, DeviceName, InitiatingProcessAccountName, FileName, ProcessCommandLine, InitiatingProcessFolderPath, AdditionalFields, InitiatingProcessCommandLine
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1978" height="511" alt="image" src="https://github.com/user-attachments/assets/5d6a2c70-e1cc-4749-ad1a-53448d6febe7" />
+
 **Why This Matters:**
+Hidden administrator accounts provide alternative access for future operations. These accounts are often configured to avoid appearing in normal user interfaces.
 
 ---
 
 ### 🚩 Flag 18: EXECUTION - Malicious Script
+
 **Objective:**
+Identify the PowerShell script file used to automate the attack chain.
+
 **Flag Value:**
+`wupdate.ps1`
+`2025-11-19T18:49:48.7079818Z`
+
+
 **Detection Strategy:**
+Search DeviceFileEvents for script files created in temporary directories during the initial compromise phase. Look for PowerShell or batch script files downloaded from external sources shortly after initial access.
+
+
 **KQLQuery:**
-```kql
+```kqlDeviceFileEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where FileName endswith ".ps1" or FileName endswith ".bat"
+| project Timestamp, DeviceName, FileName, ActionType, InitiatingProcessFileName, FolderPath
+| order by Timestamp desc
 ```
+
 **Evidence:**
+<img width="1650" height="460" alt="image" src="https://github.com/user-attachments/assets/71322162-91fc-4491-bbd4-39b25b5562f1" />
+
 **Why This Matters:**
+Attackers often use scripting languages to automate their attack chain. Identifying the initial attack script reveals the entry point and automation method used in the compromise.
 
 ---
 
 ### 🚩 Flag 19: LATERAL MOVEMENT - Secondary Target
+
 **Objective:**
+What IP address was targeted for lateral movement?
+
 **Flag Value:**
+`10.1.0.188`
+`2025-11-19T19:10:42.057693Z`
+
 **Detection Strategy:**
+Examine the target system specified in remote access commands during lateral movement. Look for IP addresses used with "cmdkey" or "mstsc" commands near the end of the attack timeline.
+
 **KQLQuery:**
 ```kql
+DeviceNetworkEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where InitiatingProcessCommandLine has_any ("cmdkey", "mstsc")
+| project Timestamp, LocalIP, RemoteIP, RemotePort, Protocol, ActionType, InitiatingProcessAccountName, InitiatingProcessCommandLine, InitiatingProcessRemoteSessionDeviceName, AdditionalFields
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1953" height="509" alt="image" src="https://github.com/user-attachments/assets/ac9fcd9e-7c6d-4c74-9eb7-380e1b2df787" />
+
 **Why This Matters:**
+Lateral movement targets are selected based on their access to sensitive data or network privileges. Identifying these targets reveals attacker objectives.
 
 ---
 
 ### 🚩 Flag 20: LATERAL MOVEMENT - Remote Access Tool
+
 **Objective:**
+Identify the remote access tool used for lateral movement.
+
 **Flag Value:**
+`mstsc.exe`
+`2025-11-19T19:10:41.372526Z`
+
 **Detection Strategy:**
+Search for remote desktop connection utilities executed near the end of the attack timeline. Look for processes launched with remote system names or IP addresses as arguments.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine matches regex @"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+| project Timestamp, DeviceName, InitiatingProcessAccountName, FileName, ProcessCommandLine, InitiatingProcessFolderPath, AdditionalFields, InitiatingProcessCommandLine
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1954" height="514" alt="image" src="https://github.com/user-attachments/assets/dcc10411-2279-4c8f-a3fa-e6a531d20f11" />
+
 **Why This Matters:**
+Built-in remote access tools are preferred for lateral movement as they blend with legitimate administrative activity. This technique is harder to detect than custom tools.
 
 ---
 
