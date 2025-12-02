@@ -707,28 +707,28 @@ Built-in remote access tools are preferred for lateral movement as they blend wi
 
 ## 🎯 MITRE ATT&CK Technique Mapping
 
-| Flag |  Description                                                          | MITRE ATT&CK Technique(s)                                                                                                                        |
-| ---- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1    | Remote Desktop / external connection as entry point                   | **T1078.004** – Valid Accounts: Remote Desktop Protocol<br>**T1190** – Exploit Public-Facing Application                                         |
-| 2    | Compromised credentials used to access host                           | **T1078** – Valid Accounts                                                                                                                       |
-| 3    | Enumerate network neighbours, IPs, ARP table, topology                | **T1016** – System Network Configuration Discovery<br>**T1087.002** – Account Discovery: Domain Accounts / Local Accounts                        |
-| 4    | Create hidden or unusual staging directory for payloads               | **T1221** – Template Injection <br>**T1564.001** – Hide Artifacts: Hidden Files and Directories                                                  |
-| 5    | Excluding certain extensions from antivirus scanning                  | **T1562.004** – Impair Defenses: Disable or Modify Tools (AV exclusions)                                                                         |
-| 6    | Excluding Temp folder from scanning, evading detection                | **T1562.004** – Impair Defenses                                                                                                                  |
-| 7    | Use of native Windows utilities to download payloads                  | **T1218** – System Binary Proxy Execution<br>**T1105** – Ingress Tool Transfer                                                                   |
-| 8    | Create scheduled task to maintain persistence                         | **T1053.005** – Scheduled Task / Job                                                                                                             |
-| 9    | Configure scheduled task to run attacker payload                      | **T1053.005** – Scheduled Task / Job                                                                                                             |
-| 10   | Outbound connection to attacker-controlled C2 server                  | **T1071.001** – Application Layer Protocol: Web Protocol (HTTP/S)<br>**T1043** – Commonly Used Port                                              |
-| 11   | Use of non-standard port for C2 communication                         | **T1043** – Commonly Used Port                                                                                                                   |
-| 12   | Use of credential-dumping or harvesting tool                          | **T1003** – OS Credential Dumping                                                                                                                |
-| 13   | Use of memory-based extraction module                                 | **T1003.001** – OS Credential Dumping: LSASS Memory                                                                                              |
-| 14   | Archive of data (e.g. zip) for exfiltration                           | **T1560.001** – Archive Collected Data: Zip                                                                                                      |
-| 15   | Outbound data movement to C2 or external host                         | **T1041** – Exfiltration Over C2 Channel<br>**T1071.001** – Application Layer Protocol                                                           |
-| 16   | Clearing or tampering Windows event logs                              | **T1070.001** – Indicator Removal on Host: Clear Windows Event Logs                                                                              |
-| 17   | Creation of a backdoor local account for long-term access             | **T1136.001** – Create Account: Local Account                                                                                                    |
-| 18   | Execution of script to automate attack chain                          | **T1059.001** – PowerShell (or script execution)                                                                                                 |
-| 19   | Using remote access or network tools to move to another host          | **T1021.001** – Remote Services: Remote Desktop Protocol                                                                                         |
-| 20   | Use of native or off-the-shelf remote access tool for lateral spread  | **T1021** – Remote Services                                                                                                                      |
+| Flag |  Description                                                          | MITRE ATT&CK Technique(s)                                                                                                    |
+| ---- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Remote Desktop / external connection as entry point                   | `T1078.004` – Valid Accounts: Remote Desktop Protocol <br>`T1190` – Exploit Public-Facing Application                        |
+| 2    | Compromised credentials used to access host                           | `T1078` – Valid Accounts                                                                                                     |
+| 3    | Enumerate network neighbours, IPs, ARP table, topology                | `T1016` – System Network Configuration Discovery <br>`T1087.002` – Account Discovery: Domain Accounts / Local Accounts       |
+| 4    | Create hidden or unusual staging directory for payloads               | `T1221` – Template Injection <br>`T1564.001` – Hide Artifacts: Hidden Files and Directories                                  |
+| 5    | Excluding certain extensions from antivirus scanning                  | `T1562.004` – Impair Defenses: Disable or Modify Tools (AV exclusions)                                                       |
+| 6    | Excluding Temp folder from scanning, evading detection                | `T1562.004` – Impair Defenses                                                                                                |
+| 7    | Use of native Windows utilities to download payloads                  | `T1218` – System Binary Proxy Execution <br>`T1105` – Ingress Tool Transfer                                                  |
+| 8    | Create scheduled task to maintain persistence                         | `T1053.005` – Scheduled Task / Job                                                                                           |
+| 9    | Configure scheduled task to run attacker payload                      | `T1053.005` – Scheduled Task / Job                                                                                           |
+| 10   | Outbound connection to attacker-controlled C2 server                  | `T1071.001` – Application Layer Protocol: Web Protocol (HTTP/S) <br>`T1043` – Commonly Used Port                             |
+| 11   | Use of non-standard port for C2 communication                         | `T1043` – Commonly Used Port                                                                                                 |
+| 12   | Use of credential-dumping or harvesting tool                          | `T1003` – OS Credential Dumping                                                                                              |
+| 13   | Use of memory-based extraction module                                 | `T1003.001` – OS Credential Dumping: LSASS Memory                                                                            |
+| 14   | Archive of data (e.g. zip) for exfiltration                           | `T1560.001` – Archive Collected Data: Zip                                                                                    |
+| 15   | Outbound data movement to C2 or external host                         | `T1041` – Exfiltration Over C2 Channel <br>`T1071.001` – Application Layer Protocol                                          |
+| 16   | Clearing or tampering Windows event logs                              | `T1070.001` – Indicator Removal on Host: Clear Windows Event Logs                                                            |
+| 17   | Creation of a backdoor local account for long-term access             | `T1136.001` – Create Account: Local Account                                                                                  |
+| 18   | Execution of script to automate attack chain                          | `T1059.001` – PowerShell (or script execution)                                                                               |
+| 19   | Using remote access or network tools to move to another host          | `T1021.001` – Remote Services: Remote Desktop Protocol                                                                       |
+| 20   | Use of native or off-the-shelf remote access tool for lateral spread  | `T1021` – Remote Services                                                                                                    |
 
 ---
 
