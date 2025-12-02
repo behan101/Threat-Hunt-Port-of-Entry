@@ -775,4 +775,74 @@ Without these data sources, identifying the attacker’s sequence would be signi
 
 ## 🛠️ Recommendations for Remediation
 
+### 1. Harden Remote Access
 
+- Enforce MFA on all remote access tools (RDP, VPN, Remote Assistance).
+- Limit inbound RDP to VPN-only networks.
+- Disable unnecessary remote-access services on endpoints.
+- Monitor all successful RDP logins for anomalies (impossible travel, time-of-day deviations).
+
+### 2. Strengthen Credential Protection
+
+- Rotate credentials for any accounts observed during compromise.
+- Enforce strong password length and rotation policies.
+- Deploy local admin password randomization (LAPS / LAPS NG).
+- Reduce user privileges where unnecessary.
+
+### 3. Increase Logging Coverage
+
+- Enable PowerShell Module, Script Block, and Transcription logs.
+- Enable Microsoft Defender tamper protection and prevent policy edits by non-admins.
+- Ensure Defender AV exclusion events are being monitored (high-severity indicator).
+- Log and alert on:
+  - Scheduled task creation/modification
+  - Run key registry additions
+  - Archive creation in sensitive directories
+
+### 4. Block Living-off-the-Land Binaries (LOLBins) Misuse
+
+Restrict or monitor:
+
+certutil.exe
+
+powerShell.exe / pwsh.exe
+
+bitsadmin.exe
+
+rundll32.exe
+
+wscript.exe / cscript.exe
+
+Apply WDAC / AppLocker to control script execution paths.
+
+### 5. Monitor for Data Staging & Exfil Indicators
+
+Alert when large archives (*.zip, *.7z, .rar) appear in temp or user profile directories.
+
+Monitor abnormal outbound HTTP/S connections to unknown IPs/domains.
+
+Flag DNS lookups to newly registered or unclassified domains.
+
+### 6. Improve Behavioral Detection & Threat Hunting
+
+Implement detection use cases for:
+
+Scheduled task creation outside admin channels
+
+AV exclusion modifications
+
+Registry Run key persistence
+
+Unusual explorer.exe-initiated file access (e.g., Recent folder artifacts)
+
+High-volume PowerShell execution by non-IT users
+
+First-time outbound connections to new destinations
+
+### 7. Incident Response Hardening
+
+Develop playbooks for credential resets, lateral movement containment, and persistence removal.
+
+Conduct routine tabletop exercises simulating this exact intrusion pattern.
+
+Apply continuous threat-hunting cycles instead of reactive investigations.
