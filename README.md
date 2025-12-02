@@ -106,7 +106,7 @@ This report includes:
 ### 🚩 Flag 1: INITIAL ACCESS - Remote Access Source
 
 **Objective:**
-Remote Desktop Protocol connections leave network traces that identify the source of unauthorized access. Determining the origin helps with threat actor attribution and blocking ongoing attacks. Identify the source IP address of the Remote Desktop Protocol connection.
+Identify the source IP address of the Remote Desktop Protocol connection.
 
 **Flag Value:**
 `88.97.178.12`
@@ -127,14 +127,14 @@ DeviceLogonEvents
 <img width="949" height="307" alt="image" src="https://github.com/user-attachments/assets/7d342911-eb06-401a-917f-bf12cc205cf7" />
 
 **Why This Matters:**
-Finding the RemoteIP that was accessed by the compromised account `kenji.sato` is essential to discovering the scope of the compromise accounts and activities.
+Remote Desktop Protocol connections leave network traces that identify the source of unauthorized access. Determining the origin helps with threat actor attribution and blocking ongoing attacks.
 
 ---
 
 ### 🚩 Flag 2: INITIAL ACCESS - Compromised User Account
 
 **Objective:**
-Identifying which credentials were compromised determines the scope of unauthorized access and guides remediation efforts including password resets and privilege reviews. Identify the user account that was compromised for initial access.
+Identify the user account that was compromised for initial access.
 
 **Flag Value:**
 `kenji.sato`
@@ -155,14 +155,14 @@ DeviceLogonEvents
 <img width="949" height="307" alt="image" src="https://github.com/user-attachments/assets/7d342911-eb06-401a-917f-bf12cc205cf7" />
 
 **Why This Matters:**
-Identifying the compromised account along with the RemoteIP can pinpoint any attempts at discovery and other intents of the threat actor.
+Identifying which credentials were compromised determines the scope of unauthorized access and guides remediation efforts including password resets and privilege reviews.
 
 ---
 
 ### 🚩 Flag 3: DISCOVERY - Network Reconnaissance
 
 **Objective:**
-Attackers enumerate network topology to identify lateral movement opportunities and high-value targets. This reconnaissance activity is a key indicator of advanced persistent threats. Identify the command and argument used to enumerate network neighbours.
+Identify the command and argument used to enumerate network neighbours.
 
 **Flag Value:**
 `ARP.EXE -a`
@@ -187,14 +187,14 @@ DeviceProcessEvents
 <img width="1354" height="514" alt="image" src="https://github.com/user-attachments/assets/360b2f2b-d1dc-4e3a-b86c-82d7d03907e5" />
 
 **Why This Matters:**
-Network topology and enumeration techniques from threat actors are used to identify lateral movement opportunities. Execution of any of these shows intent for reconnaissance and discovery.
+Attackers enumerate network topology to identify lateral movement opportunities and high-value targets. This reconnaissance activity is a key indicator of advanced persistent threats.
 
 ---
 
 ### 🚩 Flag 4: DEFENSE EVASION - Malware Staging Directory
 
 **Objective:**
-Attackers establish staging locations to organise tools and stolen data. Identifying these directories reveals the scope of compromise and helps locate additional malicious artefacts. Find the primary staging directory where malware was stored.
+Find the primary staging directory where malware was stored.
 
 **Flag Value:**
 `C:\ProgramData\WindowsCache`
@@ -217,15 +217,14 @@ DeviceProcessEvents
 <img width="1374" height="303" alt="image" src="https://github.com/user-attachments/assets/42a9ac42-cb78-4ad0-888b-24d08298b418" />
 
 **Why This Matters:**
-The staging process is generally initiated by establishing locations to store tools and data. Creation of directories that are hidden from normal view are especially indicative of intent to deploy a payload.
+Attackers establish staging locations to organise tools and stolen data. Identifying these directories reveals the scope of compromise and helps locate additional malicious artifacts.
 
 ---
 
 ### 🚩 Flag 5: DEFENSE EVASION - File Extension Exclusions
 
 **Objective:**
-Attackers add file extension exclusions to Windows Defender to prevent scanning of malicious files. Counting these exclusions reveals the scope of the attacker's 
-defense evasion strategy. Find how many file extensions were excluded from Windows Defender scanning.
+Find how many file extensions were excluded from Windows Defender scanning.
 
 
 **Flag Value:**
@@ -250,22 +249,21 @@ DeviceRegistryEvents
 <img width="1135" height="403" alt="image" src="https://github.com/user-attachments/assets/b0a82c66-c041-41ad-9f49-f15c16c533f1" />
 
 **Why This Matters:**
-File extension exclusions added to Windows Defender is a clear attempt at evading scans to circumvent defensive posture.
+Attackers add file extension exclusions to Windows Defender to prevent scanning of malicious files. Counting these exclusions reveals the scope of the attacker's defense evasion strategy.
 
 ---
 
 ### 🚩 Flag 6: DEFENSE EVASION - Temporary Folder Exclusion
 
 **Objective:**
-Attackers add folder path exclusions to Windows Defender to prevent scanning of directories used for downloading and executing malicious tools. These exclusions allow malware to run undetected. What temporary folder path was excluded from Windows Defender 
-scanning?
+What temporary folder path was excluded from Windows Defender scanning?
 
 **Flag Value:**
 `C:\Users\KENJI~1.SAT\AppData\Local\Temp`
 `2025-11-19T18:49:27.6830204Z`
 
 **Detection Strategy:**
-Search DeviceRegistryEvents for folder path exclusions added to Windows Defender configuration. Focus on the RegistryValueName field. Look for temporary folder paths added to the exclusions list during the attack timeline. Copy the path exactly as it appears in the RegistryValueName field.
+Search DeviceRegistryEvents for folder path exclusions added to Windows Defender configuration. Focus on the RegistryValueName field. Look for temporary folder paths added to the exclusions list during the attack timeline.
 
 **KQLQuery:**
 ```kql
@@ -281,14 +279,14 @@ DeviceRegistryEvents
 <img width="1697" height="380" alt="image" src="https://github.com/user-attachments/assets/234acef5-8fb3-4e73-9eff-f28cd2e6eb09" />
 
 **Why This Matters:**
-Adding folder path exclusions to Windows Defender can prevent scanning of malicious tool executions and downloads. Hiding these folder paths from scans can allow malware to run without detection.
+Attackers add folder path exclusions to Windows Defender to prevent scanning of directories used for downloading and executing malicious tools. These exclusions allow malware to run undetected.
 
 ---
 
 ### 🚩 Flag 7: DEFENSE EVASION - Download Utility Abuse
 
 **Objective:**
-Legitimate system utilities are often weaponized to download malware while evading detection. Identifying these techniques helps improve defensive controls. Identify the Windows-native binary the attacker abused to download files.
+Identify the Windows-native binary the attacker abused to download files.
 
 **Flag Value:**
 `certutil.exe`
@@ -310,14 +308,14 @@ DeviceProcessEvents
 <img width="1968" height="430" alt="image" src="https://github.com/user-attachments/assets/79c7ccde-3b06-4dab-bfb5-fa514f43c4cf" />
 
 **Why This Matters:**
-Living off the Land Binaries is a classic method of defense evasion by weaponizing legitimate system utilities. By identifying these techniques, the evidence of abuse will highlight the downloaded files.
+Legitimate system utilities are often weaponized to download malware while evading detection. Identifying these techniques helps improve defensive controls.
 
 ---
 
 ### 🚩 Flag 8: PERSISTENCE - Scheduled Task Name
 
 **Objective:**
-Scheduled tasks provide reliable persistence across system reboots. The task name often attempts to blend with legitimate Windows maintenance routines. Identify the name of the scheduled task created for persistence.
+Identify the name of the scheduled task created for persistence.
 
 **Flag Value:**
 `Windows Update Check`
@@ -340,14 +338,14 @@ DeviceProcessEvents
 <img width="1641" height="405" alt="image" src="https://github.com/user-attachments/assets/4853aa44-ca00-4b9f-8cbc-b1574dfc3d2e" />
 
 **Why This Matters:**
-Scheduled tasks can be utilized by attackers to provide reliable persistance. Task names can be disguised as legitimate maintenance routines.
+Scheduled tasks provide reliable persistence across system reboots. The task name often attempts to blend with legitimate Windows maintenance routines.
 
 ---
 
 ### 🚩 Flag 9: PERSISTENCE - Scheduled Task Target
 
 **Objective:**
-The scheduled task action defines what executes at runtime. This reveals the exact persistence mechanism and the malware location. Identify the executable path configured in the scheduled task.
+Identify the executable path configured in the scheduled task.
 
 **Flag Value:**
 `C:\ProgramData\WindowsCache\svchost.exe`
@@ -370,14 +368,14 @@ DeviceProcessEvents
 <img width="1641" height="405" alt="image" src="https://github.com/user-attachments/assets/4853aa44-ca00-4b9f-8cbc-b1574dfc3d2e" />
 
 **Why This Matters:**
-The location of the malware and persistence mechanism is crucial to find the source or parent process of the malware / payload.
+The scheduled task action defines what executes at runtime. This reveals the exact persistence mechanism and the malware location. 
 
 ---
 
 ### 🚩 Flag 10: COMMAND & CONTROL - C2 Server Address
 
 **Objective:**
-Command and control infrastructure allows attackers to remotely control compromised systems. Identifying C2 servers enables network blocking and infrastructure tracking. Identify the IP address of the command and control server.
+Identify the IP address of the command and control server.
 
 **Flag Value:**
 `78.141.196.6`
@@ -401,14 +399,14 @@ DeviceNetworkEvents
 <img width="1972" height="472" alt="image" src="https://github.com/user-attachments/assets/1cb6f0e0-e0cb-4309-91b1-72da495ca326" />
 
 **Why This Matters:**
-Identifying the command and control (C2) server is a crucial step to try to remediate any futher malicious actions.
+Command and control infrastructure allows attackers to remotely control compromised systems. Identifying C2 servers enables network blocking and infrastructure tracking.
 
 ---
 
 ### 🚩 Flag 11: COMMAND & CONTROL - C2 Communication Port
 
 **Objective:**
-C2 communication ports can indicate the framework or protocol used. This information supports network detection rules and threat intelligence correlation. Identify the destination port used for command and control communications.
+Identify the destination port used for command and control communications.
 
 **Flag Value:**
 `443`
@@ -431,14 +429,14 @@ DeviceNetworkEvents
 <img width="1936" height="531" alt="image" src="https://github.com/user-attachments/assets/2b1cbc48-1586-4ef7-b82e-74c5e2775e41" />
 
 **Why This Matters:**
-Finding the ports that the C2 server used can help identify the framework or protocol used to command the compromised device.
+C2 communication ports can indicate the framework or protocol used. This information supports network detection rules and threat intelligence correlation.
 
 ---
 
 ### 🚩 Flag 12: CREDENTIAL ACCESS - Credential Theft Tool
 
 **Objective:**
-Credential dumping tools extract authentication secrets from system memory. These tools are typically renamed to avoid signature-based detection. Identify the filename of the credential dumping tool.
+Identify the filename of the credential dumping tool.
 
 **Flag Value:**
 `mm.exe`
@@ -461,19 +459,37 @@ DeviceFileEvents
 <img width="1403" height="426" alt="image" src="https://github.com/user-attachments/assets/a2dae111-e327-4d82-a377-dce01d89d29f" />
 
 **Why This Matters:**
-Finding the credential dumping tool can lead to the credential theft or attempts at extracting the stolen data from system memory.
+Credential dumping tools extract authentication secrets from system memory. These tools are typically renamed to avoid signature-based detection.
 
 ---
 
 ### 🚩 Flag 13: CREDENTIAL ACCESS - Memory Extraction Module
+
 **Objective:**
+Identify the module used to extract logon passwords from memory.
+
 **Flag Value:**
+`sekurlsa::logonpasswords`
+`2025-11-19T19:08:26.2804285Z`
+
 **Detection Strategy:**
+Examine the command line arguments passed to the credential dumping tool. Look for module::command syntax in the process command line or output redirection.
+
 **KQLQuery:**
 ```kql
+DeviceProcessEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where ProcessCommandLine has_any ("cls", "exit")
+| project Timestamp, DeviceName, InitiatingProcessAccountName, FileName, ProcessCommandLine, InitiatingProcessFolderPath, AdditionalFields, InitiatingProcessCommandLine
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="1983" height="423" alt="image" src="https://github.com/user-attachments/assets/2ec659c5-0fc3-48e0-a556-9fbf4247c43c" />
+
 **Why This Matters:**
+Credential dumping tools use specific modules to extract passwords from security subsystems. Documenting the exact technique used aids in detection engineering.
 
 ---
 
