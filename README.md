@@ -93,9 +93,9 @@ This report includes:
 | 10 | Identify the IP address of the command and control server | `78.141.196.6` was found to be the C2 server | `2025-11-19T18:37:26.3725923Z` |
 | 11 | Identify the destination port used for command and control communications | Port `443` was the destination port used | `2025-11-19T19:11:04.1766386Z` |
 | 12 | Identify the filename of the credential dumping tool | `mm.exe` was identified as the credential dumping tool | `2025-11-19T19:07:22.8551193Z` |
-| 13 |                          |         |           |
-| 14 |                          |         |           |
-| 15 |                          |         |           |
+| 13 | Identify the module used to extract logon passwords from memory | `Sekurlsa::logonpasswords` module was utilized | `2025-11-19T19:08:26.2804285Z` |
+| 14 | Identify the compressed archive filename used for data exfiltration | `export-data.zip` was created for data exfiltration | `2025-11-19T19:08:58.0244963Z` |
+| 15 | Identify the cloud service used to exfiltrate stolen data | `Discord` was cloud service used to exfiltrate the data | `2025-11-19T19:09:21.3881743Z` |
 | 16 |                          |         |           |
 | 17 |                          |         |           |
 | 18 |                          |         |           |
@@ -217,7 +217,7 @@ DeviceProcessEvents
 <img width="1374" height="303" alt="image" src="https://github.com/user-attachments/assets/42a9ac42-cb78-4ad0-888b-24d08298b418" />
 
 **Why This Matters:**
-Attackers establish staging locations to organise tools and stolen data. Identifying these directories reveals the scope of compromise and helps locate additional malicious artifacts.
+Attackers establish staging locations to organize tools and stolen data. Identifying these directories reveals the scope of compromise and helps locate additional malicious artifacts.
 
 ---
 
@@ -494,26 +494,62 @@ Credential dumping tools use specific modules to extract passwords from security
 ---
 
 ### 🚩 Flag 14: COLLECTION - Data Staging Archive
+
 **Objective:**
+Identify the compressed archive filename used for data exfiltration.
+
 **Flag Value:**
+`export-data.zip`
+`2025-11-19T19:08:58.0244963Z`
+
 **Detection Strategy:**
+Search for ZIP file creations in the staging directory during the collection phase. Look for Compress-Archive commands or examine files created before exfiltration activity.
+
 **KQLQuery:**
 ```kql
+DeviceFileEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where FileName endswith ".zip"
+| project Timestamp, DeviceName, FileName, ActionType, InitiatingProcessFileName, FolderPath
+| order by Timestamp desc
 ```
+
 **Evidence:**
+<img width="1387" height="528" alt="image" src="https://github.com/user-attachments/assets/903553da-1434-4b54-b31e-f21303768af0" />
+
 **Why This Matters:**
+Attackers compress stolen data for efficient exfiltration. The archive filename often includes dates or descriptive names for the attacker's organization.
 
 ---
 
 ### 🚩 Flag 15: EXFILTRATION - Exfiltration Channel
+
 **Objective:**
+Identify the cloud service used to exfiltrate stolen data.
+
 **Flag Value:**
+`Discord`
+`2025-11-19T19:09:21.3881743Z`
+
 **Detection Strategy:**
+Analyze outbound HTTPS connections and file upload operations during the exfiltration phase. Check DeviceNetworkEvents for connections to common file sharing or communication platforms.
+
 **KQLQuery:**
 ```kql
+DeviceNetworkEvents
+| where DeviceName == "azuki-sl"
+| where Timestamp between (datetime(2025-11-19) .. datetime(2025-11-20))
+| where InitiatingProcessCommandLine has_any ("https")
+| project Timestamp, LocalIP, RemoteIP, RemotePort, Protocol, ActionType, InitiatingProcessAccountName, InitiatingProcessCommandLine, InitiatingProcessRemoteSessionDeviceName, AdditionalFields
+| order by Timestamp asc
 ```
+
 **Evidence:**
+<img width="2014" height="484" alt="image" src="https://github.com/user-attachments/assets/99445683-e444-43ee-b8da-54ea04911a4b" />
+
 **Why This Matters:**
+Cloud services with upload capabilities are frequently abused for data theft. Identifying the service helps with incident scope determination and potential data recovery.
 
 ---
 
