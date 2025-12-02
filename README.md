@@ -802,47 +802,32 @@ Without these data sources, identifying the attacker’s sequence would be signi
 ### 4. Block Living-off-the-Land Binaries (LOLBins) Misuse
 
 Restrict or monitor:
-
-certutil.exe
-
-powerShell.exe / pwsh.exe
-
-bitsadmin.exe
-
-rundll32.exe
-
-wscript.exe / cscript.exe
+- `certutil.exe`
+- `powerShell.exe` / `pwsh.exe`
+- `bitsadmin.exe`
+- `rundll32.exe`
+- `wscript.exe` / `cscript.exe`
 
 Apply WDAC / AppLocker to control script execution paths.
 
 ### 5. Monitor for Data Staging & Exfil Indicators
 
-Alert when large archives (*.zip, *.7z, .rar) appear in temp or user profile directories.
-
-Monitor abnormal outbound HTTP/S connections to unknown IPs/domains.
-
-Flag DNS lookups to newly registered or unclassified domains.
+- Alert when large archives (*.zip, *.7z, .rar) appear in temp or user profile directories.
+- Monitor abnormal outbound HTTP/S connections to unknown IPs/domains.
+- Flag DNS lookups to newly registered or unclassified domains.
 
 ### 6. Improve Behavioral Detection & Threat Hunting
 
 Implement detection use cases for:
-
-Scheduled task creation outside admin channels
-
-AV exclusion modifications
-
-Registry Run key persistence
-
-Unusual explorer.exe-initiated file access (e.g., Recent folder artifacts)
-
-High-volume PowerShell execution by non-IT users
-
-First-time outbound connections to new destinations
+- Scheduled task creation outside admin channels
+- AV exclusion modifications
+- Registry Run key persistence
+- Unusual explorer.exe-initiated file access (e.g., Recent folder artifacts)
+- High-volume PowerShell execution by non-IT users
+- First-time outbound connections to new destinations
 
 ### 7. Incident Response Hardening
 
-Develop playbooks for credential resets, lateral movement containment, and persistence removal.
-
-Conduct routine tabletop exercises simulating this exact intrusion pattern.
-
-Apply continuous threat-hunting cycles instead of reactive investigations.
+- Develop playbooks for credential resets, lateral movement containment, and persistence removal.
+- Conduct routine tabletop exercises simulating this exact intrusion pattern.
+- Apply continuous threat-hunting cycles instead of reactive investigations.
